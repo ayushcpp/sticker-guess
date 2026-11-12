@@ -1,0 +1,14 @@
+# Leading "/" = project root only. Without it a pattern matches at ANY depth, and "Screenshot_*"
+# dropped the meme PNGs in public/memes/ (named Screenshot_...) from the deploy.
+/video.mp4
+/tests/
+/scripts/
+/Screenshot_*
+/first page.txt
+/_.jpeg
+/bleh.jpeg
+/1048072144555322828.jpeg
+/PROGRESS.txt
+/.env*
+/CLAUDE.md
+/HANDOFF.md

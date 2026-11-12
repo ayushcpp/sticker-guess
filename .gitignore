@@ -1,0 +1,24 @@
+node_modules/
+.vercel/
+.venv/
+__pycache__/
+.DS_Store
+.playwright-mcp/
+.env*
+
+# Leading "/" = project root only. Without it "Screenshot_*" also dropped the meme PNGs in
+# public/memes/ (named Screenshot_...).
+
+# reference material: never publish
+/video.mp4
+/Screenshot_*
+
+# local notes, kept on this laptop only
+/CLAUDE.md
+/HANDOFF.md
+/PROGRESS.txt
+/README.full.md
+/first page.txt
+/_.jpeg
+/bleh.jpeg
+/1048072144555322828.jpeg

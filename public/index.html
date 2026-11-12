@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sticker Guess</title>
+    <meta name="description" content="Sticker Guess: find every meme with your face and hand gestures. Runs entirely in your browser." />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤍</text></svg>" />
+    <link rel="preload" href="fonts/fredoka-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="css/style.css" />
+    <script type="module" src="js/main.js"></script>
+  </head>
+  <body>
+    <!-- ======================= PAGE 1: TITLE ======================= -->
+    <section id="intro" class="landing page-title" aria-labelledby="landing-title">
+      <div class="title-wrap">
+        <h1 id="landing-title" class="landing-title bouncy" aria-label="Sticker Guess">
+          <span class="word" aria-hidden="true"><span class="ch" style="--i: 0">S</span><span class="ch" style="--i: 1">t</span><span class="ch" style="--i: 2">i</span><span class="ch" style="--i: 3">c</span><span class="ch" style="--i: 4">k</span><span class="ch" style="--i: 5">e</span><span class="ch" style="--i: 6">r</span></span>
+          <span class="word" aria-hidden="true"><span class="ch" style="--i: 7">G</span><span class="ch" style="--i: 8">u</span><span class="ch" style="--i: 9">e</span><span class="ch" style="--i: 10">s</span><span class="ch" style="--i: 11">s</span></span>
+        </h1>
+        <img
+          class="landing-cat cat-in"
+          src="img/lets-play.jpeg"
+          width="736"
+          height="736"
+          alt="A kitten looking up at the camera, with the words: Let's play a game"
+        />
+        <div class="play-choices intro-choices">
+          <button id="play-yes" class="choice choice-play" type="button">
+            YES — Continue to Game <span class="arrow" aria-hidden="true">→</span>
+          </button>
+          <button id="play-no" class="choice choice-play-no" type="button">
+            <span id="play-no-text">NO</span>
+            <img id="bleh" class="sticker" src="img/bleh.jpeg" width="735" height="642" alt="Bleh!" hidden />
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= PAGE 2: DETAILS ======================= -->
+    <section id="details" class="landing page-form" aria-labelledby="details-title" hidden>
+      <form id="details-form" class="landing-form wide" novalidate>
+        <h1 id="details-title" class="form-title" tabindex="-1">Sticker Guess</h1>
+
+        <label class="field">
+          <span class="field-label">Your name</span>
+          <input id="name" type="text" autocomplete="given-name" maxlength="60" />
+        </label>
+
+        <h2 class="details-title">Additional Details</h2>
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">Phone number</span>
+            <input id="phone" type="tel" inputmode="tel" autocomplete="tel" />
+          </label>
+          <label class="field">
+            <span class="field-label">Date of birth</span>
+            <input id="dob" type="date" autocomplete="bday" />
+          </label>
+        </div>
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">Course</span>
+            <input id="course" type="text" maxlength="60" list="course-options" autocomplete="off" />
+            <datalist id="course-options">
+              <option value="BCA AI DS"></option>
+              <option value="BCA"></option>
+              <option value="B.Tech CSE"></option>
+              <option value="B.Tech CSE AI ML"></option>
+              <option value="B.Tech CSE Data Science"></option>
+              <option value="B.Sc"></option>
+              <option value="BBA"></option>
+              <option value="MCA"></option>
+            </datalist>
+          </label>
+          <label class="field">
+            <span class="field-label">Year</span>
+            <select id="year">
+              <option value="">Choose…</option>
+              <option>1st year</option>
+              <option>2nd year</option>
+              <option>3rd year</option>
+              <option>4th year</option>
+              <option>Other</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="choices choices-row">
+          <button id="share-yes" class="choice choice-yes check" type="button" aria-pressed="false">
+            <span class="checkbox" aria-hidden="true"></span>
+            <span>YES — I want to share these details</span>
+          </button>
+          <button id="share-no" class="choice choice-no check" type="button">
+            <span class="checkbox" aria-hidden="true"></span>
+            <span>NO</span>
+          </button>
+        </div>
+        <p id="no-tease" class="no-tease" aria-live="polite" hidden></p>
+        <p id="share-status" class="share-status" role="status" hidden></p>
+
+        <button id="continue-btn" class="continue-btn" type="button">
+          Continue <span class="arrow" aria-hidden="true">→</span>
+        </button>
+      </form>
+      <!-- the running NO moves into this page-sized layer: whatever of it is off screen is clipped, so the page
+           never gets wider on phones -->
+      <div id="no-layer" class="no-layer"></div>
+      <p id="no-msg" class="no-msg" aria-live="polite"></p>
+    </section>
+
+    <!-- ======================= PAGE 3: REASONING ======================= -->
+    <section id="reasoning" class="landing page-form" aria-labelledby="reasoning-title" hidden>
+      <form id="reasoning-form" class="landing-form wide" novalidate>
+        <h1 id="reasoning-title" class="form-title" tabindex="-1">Reasoning Comprehension</h1>
+        <ol id="quiz" class="quiz"></ol>
+        <button id="play-btn" class="continue-btn" type="button">
+          Continue to Main Game <span class="arrow" aria-hidden="true">→</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- ======================= PAGE 4: CAPTCHA ======================= -->
+    <section id="captcha" class="landing page-form page-alert" aria-labelledby="captcha-title" hidden>
+      <!-- plays first, then leaves and the captcha comes in (intro.js playHumanIntro) -->
+      <div id="human-intro" class="human-intro" tabindex="-1">
+        <div class="hi-scene hi-one">
+          <p class="hi-waits">
+            <span class="hi-wait">Wait</span> <span class="hi-wait">Wait</span> <span class="hi-wait">Wait…</span>
+          </p>
+          <p class="hi-line">
+            <span class="hi-word">What</span> <span class="hi-word">if</span> <span class="hi-word">U</span>
+            <span class="hi-word">are</span>
+            <span class="hi-mark"><span class="hi-swipe" aria-hidden="true"></span><span class="hi-word">not</span> <span class="hi-word">a</span> <span class="hi-word">human?</span></span>
+          </p>
+        </div>
+        <div class="hi-scene hi-two">
+          <p class="hi-whatif">What if…</p>
+          <ul class="hi-nos">
+            <li class="hi-no"><span class="hi-pic"><img src="memes/almarts27%20hamster.jpeg" alt="" /></span><b>NO</b></li>
+            <li class="hi-no"><span class="hi-pic"><img src="memes/thumbs%20down.jpg" alt="" /></span><b>NO</b></li>
+            <li class="hi-no"><span class="hi-pic"><img src="memes/angry.jpeg" alt="" /></span><b>NO!</b></li>
+          </ul>
+          <div class="hi-check">
+            <p class="hi-lets">Let's check…</p>
+            <p class="hi-okay"><span class="hi-pic"><img src="memes/thumb.jpg" alt="" /></span><b>OKAY</b></p>
+          </div>
+        </div>
+      </div>
+      <div id="captcha-page" class="captcha-page" hidden>
+        <h1 id="captcha-title" class="captcha-heading" tabindex="-1">
+          <img class="captcha-heading-pic" src="memes/steeple%20fingers.png" alt="" />
+          <span>Let's check if U are human or not</span>
+        </h1>
+        <div class="captcha" role="group" aria-labelledby="captcha-task">
+          <div class="captcha-head">
+            <p id="captcha-task" class="captcha-task">Match the columns</p>
+            <p class="captcha-sub">Drag each picture to the same one on the right</p>
+          </div>
+          <div class="captcha-body">
+            <ul id="captcha-stickers" class="captcha-stickers" aria-label="Pictures to drag"></ul>
+            <ol id="captcha-slots" class="captcha-slots" aria-label="Pictures to match"></ol>
+          </div>
+          <div class="captcha-foot">
+            <button id="captcha-refresh" class="captcha-icon" type="button" aria-label="Get a new puzzle" title="Get a new puzzle">↻</button>
+            <p id="captcha-status" class="captcha-status" role="status"></p>
+            <button id="captcha-verify" class="captcha-verify" type="button">Verify</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================= MEME CAM ======================= -->
+    <main id="app" class="app" hidden>
+      <!-- pink pixel world behind the game (decoration only) -->
+      <div class="pixel-world" aria-hidden="true">
+        <img class="px-cloud c1" src="img/pixel/cloud.svg" alt="" />
+        <img class="px-cloud c2" src="img/pixel/cloud.svg" alt="" />
+        <img class="px-cloud c3" src="img/pixel/cloud.svg" alt="" />
+        <img class="px-block b1" src="img/pixel/block.svg" alt="" />
+        <img class="px-block b2" src="img/pixel/block.svg" alt="" />
+        <img class="px-block b3" src="img/pixel/block.svg" alt="" />
+        <img class="px-heart h1" src="img/pixel/heart.svg" alt="" />
+        <img class="px-heart h2" src="img/pixel/heart.svg" alt="" />
+        <img class="px-heart h3" src="img/pixel/heart.svg" alt="" />
+        <img class="px-heart h4" src="img/pixel/heart.svg" alt="" />
+        <img class="px-spark s1" src="img/pixel/sparkle.svg" alt="" />
+        <img class="px-spark s2" src="img/pixel/sparkle.svg" alt="" />
+        <img class="px-spark s3" src="img/pixel/sparkle.svg" alt="" />
+        <img class="px-spark s4" src="img/pixel/sparkle.svg" alt="" />
+        <div class="px-ground"></div>
+      </div>
+      <div class="play">
+      <div class="scene">
+        <div id="stage" class="stage">
+          <video id="video" playsinline muted autoplay></video>
+          <canvas id="hands" class="hands" aria-hidden="true"></canvas>
+
+          <div id="gate" class="gate">
+            <div class="gate-card">
+              <p id="gate-msg">Opening the camera…</p>
+              <button id="start-btn" class="btn primary" type="button" hidden>Try again</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- the meme to find (game) -->
+        <aside id="target" class="target" hidden>
+          <img id="target-img" alt="" />
+          <div class="target-row">
+            <span id="target-stage" aria-live="polite"></span>
+            <span id="target-pct">0%</span>
+          </div>
+          <div class="target-bar"><span id="target-fill"></span></div>
+          <p id="target-hint" class="target-hint" hidden></p>
+        </aside>
+
+        <!-- pops up next to the camera only while a meme is triggered -->
+        <figure id="meme" class="meme" hidden>
+          <img id="meme-img" alt="" />
+        </figure>
+      </div>
+
+      <!-- every sticker of the game, one per level: locked until found -->
+      <aside id="stickers" class="stickers" aria-labelledby="stickers-title" hidden>
+        <h2 id="stickers-title" class="stickers-title">Stickers <span id="stickers-count"></span></h2>
+        <ol id="sticker-list" class="sticker-list"></ol>
+      </aside>
+      </div>
+
+      <p id="loading" class="loading" hidden>Loading…</p>
+      <select id="camera-select" class="select" aria-label="Choose camera" hidden></select>
+
+      <!-- all levels found: two cute boxes; Comment opens a paper note (feedback.js) -->
+      <div id="win" class="win" hidden>
+        <div class="win-boxes">
+          <button id="again-btn" class="cute-box box-again" type="button">
+            Play Again
+          </button>
+          <button id="comment-btn" class="cute-box box-comment" type="button">
+            <span class="cute-icon" aria-hidden="true">💌</span>Comment
+          </button>
+        </div>
+        <form id="note" class="note" hidden novalidate>
+          <button id="note-close" class="note-close" type="button" aria-label="Close">×</button>
+          <h2 class="note-title" tabindex="-1">Your comment</h2>
+          <fieldset id="note-stars" class="note-stars">
+            <legend>Rate the game</legend>
+            <label><input type="radio" name="rate" value="1" /><span aria-hidden="true">★</span><span class="sr-only">1 star</span></label>
+            <label><input type="radio" name="rate" value="2" /><span aria-hidden="true">★</span><span class="sr-only">2 stars</span></label>
+            <label><input type="radio" name="rate" value="3" /><span aria-hidden="true">★</span><span class="sr-only">3 stars</span></label>
+            <label><input type="radio" name="rate" value="4" /><span aria-hidden="true">★</span><span class="sr-only">4 stars</span></label>
+            <label><input type="radio" name="rate" value="5" /><span aria-hidden="true">★</span><span class="sr-only">5 stars</span></label>
+          </fieldset>
+          <textarea id="note-text" class="note-text" rows="4" maxlength="1000" aria-label="Your comment"></textarea>
+          <p id="note-status" class="note-status" role="status"></p>
+          <div class="note-actions">
+            <button id="note-send" class="note-send" type="submit">Send 💌</button>
+            <button id="note-suggest" class="note-suggest" type="button">Suggest a comment ✨</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- loading screen after the captcha: stays until the camera and the trackers are ready (boot.js) -->
+      <div id="boot" class="boot" hidden>
+        <div class="boot-card">
+          <div class="boot-hop" aria-hidden="true">
+            <img src="img/pixel/block.svg" alt="" />
+            <span class="boot-shadow"></span>
+          </div>
+          <p class="boot-title">Loading<span class="boot-dots" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span></p>
+          <div class="boot-bar" aria-hidden="true">
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <p id="boot-step" class="boot-step" role="status"></p>
+        </div>
+        <div class="px-ground" aria-hidden="true"></div>
+      </div>
+    </main>
+
+    <!-- the screen cracking in the middle of the game, before the siren page (cracks.js) -->
+    <div id="cracks" class="cracks" hidden aria-hidden="true"></div>
+
+    <noscript><p class="noscript">This needs JavaScript enabled.</p></noscript>
+  </body>
+</html>

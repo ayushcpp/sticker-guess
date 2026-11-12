@@ -1,0 +1,2198 @@
+@font-face {
+  font-family: "Fredoka";
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url("../fonts/fredoka-latin.woff2") format("woff2");
+}
+
+:root {
+  /* pages 1-3: soft blush pink (the user's reference screenshot: #fadbe5 with raspberry #e8336f), the same in
+     dark mode, since the user asked for pink */
+  --bg: #fadbe5;
+  --bg-grad: linear-gradient(180deg, #fde7ef 0%, #fadbe5 45%, #f6cfe0 100%);
+  --surface: #ffffff;
+  --field: #fff7fa;
+  --border: #f1c9d7;
+  --text: #2a1820;
+  --muted: #86596c;
+  --yes: #1e8e4e;
+  --yes-soft: #eaf6ee;
+  --joke: #fff4d6;
+  --joke-border: #f0c24b;
+  --error: #c62f2f;
+  --mark: rgb(240 194 75 / 0.7); /* highlighter in the captcha lead-in */
+  --radius: 18px;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", Ubuntu, Cantarell, "Helvetica Neue",
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
+  --display: "Fredoka", ui-rounded, var(--font);
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+/* NO peeks in from the screen edge on phones: never a sideways scroll */
+html {
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 var(--font);
+  overflow-x: hidden;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ============================================================== LANDING == */
+.landing {
+  position: relative; /* the running NO and its message are placed relative to this (the whole page) */
+  min-height: 100vh; /* browsers without dvh */
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 28px 16px 40px;
+  background: var(--bg-grad);
+}
+
+/* No transform / filter / animation-with-transform on anything around the NO box: they would trap its
+   position: fixed (used while it runs away) inside them. */
+.landing-card {
+  width: min(940px, 100%);
+  display: grid;
+  gap: 28px;
+  align-items: center;
+}
+@media (min-width: 860px) {
+  .landing-card {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
+    gap: 48px;
+  }
+}
+
+.landing-hero {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  text-align: center;
+}
+.landing-title {
+  margin: 0;
+  font: 700 clamp(2.4rem, 7vw, 3.6rem) / 1.05 var(--display);
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+/* the cat, like a sticker: white edge, soft shadow, a slight tilt */
+.landing-cat {
+  display: block;
+  width: min(100%, 380px);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 6px solid #fff;
+  border-radius: 26px;
+  box-shadow: 0 18px 40px rgb(31 29 27 / 0.16), 0 2px 6px rgb(31 29 27 / 0.08);
+  transform: rotate(-2deg);
+}
+@media (max-width: 859px) {
+  .landing-cat {
+    width: min(100%, 320px);
+  }
+}
+@media (min-width: 860px) and (max-height: 720px) {
+  .landing-cat {
+    width: min(100%, 300px);
+  }
+}
+
+.landing-form {
+  width: min(100%, 460px);
+  justify-self: center;
+  padding: 26px 24px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgb(31 29 27 / 0.06);
+}
+.details-title {
+  margin: 22px 0 14px;
+  font: 600 1.35rem/1.2 var(--display);
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.field-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.field input {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  font: 500 1rem var(--font);
+  color: var(--text);
+  background: var(--field);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.field input:focus {
+  outline: none;
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px rgb(31 29 27 / 0.12);
+}
+.field input[aria-invalid="true"] {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgb(198 47 47 / 0.14);
+}
+.field input[aria-invalid="true"]:focus {
+  border-width: 2px;
+  box-shadow: 0 0 0 4px rgb(198 47 47 / 0.3);
+}
+
+.details-note {
+  margin: 2px 0 16px;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.choices {
+  display: grid;
+  gap: 10px;
+}
+.choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 16px;
+  font: 600 0.98rem/1.3 var(--font);
+  text-align: left;
+  color: var(--text);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+.choice:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
+}
+.choice-yes {
+  background: var(--yes-soft);
+  border: 2px solid var(--yes);
+}
+.choice-yes:hover {
+  box-shadow: 0 6px 16px rgb(30 142 78 / 0.18);
+}
+.choice-yes.sending {
+  cursor: progress;
+  opacity: 0.75;
+}
+/* share YES / NO as checkbox options, side by side */
+.choices.choices-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+.choice.check {
+  justify-content: flex-start;
+  gap: 12px;
+}
+.choice-no.check {
+  min-width: 112px;
+}
+.checkbox {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  opacity: 0.85;
+}
+.choice-yes.chosen .checkbox {
+  background: var(--yes);
+  border-color: var(--yes);
+  opacity: 1;
+}
+.choice-yes.chosen .checkbox::after {
+  content: "✓";
+  font: 700 0.8rem/1 var(--font);
+  color: #fff;
+}
+.choice-no {
+  background: var(--field);
+  border: 2px solid var(--border);
+  color: var(--muted);
+}
+/* Phones: each tap on NO makes it smaller and YES bigger, with a line under them; the third tap and NO is gone
+   (intro.js squeeze; the user, 2026-11-07). */
+.choices-row .choice {
+  transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s, opacity 0.3s,
+    font-size 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), padding 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    min-height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), min-width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.choices-row[data-squeeze] {
+  align-items: center;
+}
+.choices-row[data-squeeze="1"] .choice-no {
+  min-width: 82px;
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+}
+.choices-row[data-squeeze="1"] .choice-yes {
+  min-height: 66px;
+  font-size: 1.05rem;
+}
+.choices-row[data-squeeze="2"] .choice-no,
+.choices-row[data-squeeze="3"] .choice-no {
+  min-width: 56px;
+  min-height: 32px;
+  padding: 4px 8px;
+  gap: 6px;
+  font-size: 0.7rem;
+  opacity: 0.75;
+}
+.choices-row[data-squeeze="2"] .choice-no .checkbox,
+.choices-row[data-squeeze="3"] .choice-no .checkbox {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+.choices-row[data-squeeze="2"] .choice-yes {
+  min-height: 74px;
+  font-size: 1.12rem;
+}
+.choices-row[data-squeeze="3"] .choice-yes {
+  min-height: 80px;
+  font-size: 1.2rem;
+}
+.choices-row.yes-only {
+  grid-template-columns: 1fr; /* NO is gone: YES takes the whole row */
+}
+.choice-no.gone {
+  pointer-events: none;
+  animation: no-gone 0.45s cubic-bezier(0.55, 0, 0.75, 0.25) forwards;
+}
+@keyframes no-gone {
+  30% { transform: scale(1.12) rotate(-8deg); }
+  to { transform: scale(0) rotate(25deg); opacity: 0; }
+}
+.choice-yes.boing {
+  animation: yes-boing 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes yes-boing {
+  40% { transform: scale(1.04); }
+}
+.no-tease {
+  margin: 10px 0 0;
+  text-align: center;
+  font: 600 0.95rem / 1.3 var(--display);
+  color: var(--error);
+}
+.no-tease.pop {
+  animation: tease-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes tease-pop {
+  from { opacity: 0; transform: translateY(-6px) scale(0.9); }
+}
+.choice-placeholder {
+  /* keeps NO's place in the layout while it is off running (on phones a gap opens above it, at once:
+     NO's position is measured from it) */
+  border: 2px dashed var(--border);
+  border-radius: 14px;
+  opacity: 0.6;
+}
+.no-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden; /* clips NO when it peeks in from the screen edge (phones) */
+  pointer-events: none;
+  z-index: 20;
+}
+.no-layer .choice-no {
+  pointer-events: auto;
+}
+/* running away: a slow, bouncy waddle (it starts early and goes far, so it doesn't need to be fast).
+   Absolute = placed on the page, so it scrolls with everything else. */
+.choice-no.fleeing {
+  position: absolute;
+  z-index: 20;
+  margin: 0;
+  box-shadow: 0 12px 28px rgb(31 29 27 / 0.16);
+  transition: left 0.7s cubic-bezier(0.3, 1.45, 0.55, 1), top 0.7s cubic-bezier(0.3, 1.45, 0.55, 1);
+}
+.choice-no.fleeing.waddle {
+  animation: waddle 0.7s ease-in-out;
+}
+@keyframes waddle {
+  0% { transform: rotate(0deg) scale(1); }
+  15% { transform: rotate(-7deg) scale(1.04, 0.94); }
+  35% { transform: rotate(6deg) scale(0.97, 1.04); }
+  55% { transform: rotate(-4deg) scale(1.02, 0.98); }
+  75% { transform: rotate(2deg); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+/* boxed in: it pops up at the farthest free spot instead of gliding there */
+.choice-no.fleeing.hop {
+  transition: none;
+}
+.choice-no.fleeing.poof {
+  animation: poof 0.3s ease-out;
+}
+@keyframes poof {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+.sticker {
+  flex: none;
+  width: 58px;
+  height: auto;
+  aspect-ratio: 735 / 642;
+  object-fit: cover;
+  border: 3px solid #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 14px rgb(31 29 27 / 0.22);
+  transform: rotate(8deg);
+  animation: sticker-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes sticker-pop {
+  from { transform: rotate(-20deg) scale(0.2); opacity: 0; }
+  to { transform: rotate(8deg) scale(1); opacity: 1; }
+}
+
+/* "Catch me!" / "Try again!" / "Keep trying!" / "U can't win!" above the running NO box. Once it
+   appears it stays; only the words change. */
+.no-msg {
+  position: absolute;
+  z-index: 21;
+  margin: 0;
+  padding: 6px 12px;
+  font: 600 0.9rem/1.2 var(--display);
+  color: var(--bg);
+  background: var(--text);
+  border-radius: 999px;
+  white-space: nowrap;
+  /* catches taps itself, so a tap on the message never lands on the YES box under it */
+  cursor: default;
+  user-select: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -100%) scale(0.9);
+  transition: opacity 0.18s, left 0.7s cubic-bezier(0.3, 1.45, 0.55, 1), top 0.7s cubic-bezier(0.3, 1.45, 0.55, 1);
+}
+.no-msg.show {
+  visibility: visible;
+  opacity: 1;
+  transform: translate(-50%, -100%);
+}
+.no-msg.pop {
+  animation: msg-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes msg-pop {
+  from { transform: translate(-50%, -100%) scale(0.6); }
+  to { transform: translate(-50%, -100%) scale(1); }
+}
+
+.share-status {
+  margin: 10px 2px 0;
+  font-size: 0.86rem;
+  color: var(--error);
+}
+
+/* "YES — Continue to Game" | "NO" */
+.play-choices {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(88px, 0.42fr);
+  gap: 10px;
+  margin-top: 22px;
+}
+.choice-play {
+  justify-content: center;
+  text-align: center;
+  font: 600 1.08rem/1.2 var(--display);
+  color: var(--bg);
+  background: var(--text);
+  border: 2px solid var(--text);
+}
+.choice-play:hover {
+  box-shadow: 0 10px 24px rgb(31 29 27 / 0.22);
+}
+.choice-play .arrow {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.choice-play:hover .arrow {
+  transform: translateX(4px);
+}
+.choice-play-no {
+  justify-content: center;
+  font: 600 1.08rem/1 var(--display);
+  background: var(--field);
+  border: 2px solid var(--border);
+  color: var(--muted);
+}
+/* clicked: 😝 + a big bleh sticker, and it stays like that */
+.choice-play-no.bleh {
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 6px 10px;
+  background: var(--joke);
+  border-color: var(--joke-border);
+  cursor: default;
+}
+.choice-play-no.bleh #play-no-text {
+  font-size: 1.9rem;
+  line-height: 1;
+}
+.choice-play-no .sticker {
+  width: min(118px, 100%);
+}
+@media (max-width: 360px) {
+  .play-choices {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .landing {
+    padding-top: 20px;
+  }
+  .landing-form {
+    padding: 20px 16px 18px;
+  }
+  .choice {
+    font-size: 0.93rem;
+  }
+}
+
+/* ========================================================= PAGE 1: TITLE == */
+.page-title .title-wrap {
+  display: grid;
+  justify-items: center;
+  gap: clamp(10px, 3dvh, 22px);
+  width: min(100%, 460px);
+  text-align: center;
+}
+/* "Sticker Guess": the letters drop in one after another and land with a bounce, then every few
+   seconds they hop in a little wave. Only the letters move (nothing around the running NO). */
+.landing-title.bouncy {
+  font-size: clamp(2.2rem, min(9vw, 11dvh), 4.2rem);
+  line-height: 1.1;
+}
+.landing-title .word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.landing-title .ch {
+  display: inline-block;
+  animation: ch-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) both, ch-hop 3.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 95ms), calc(1.6s + var(--i) * 70ms);
+}
+@keyframes ch-in {
+  0% { opacity: 0; transform: translateY(-140%) scale(0.5) rotate(-14deg); }
+  55% { opacity: 1; transform: translateY(14%) scale(1.08, 0.92) rotate(5deg); }
+  75% { transform: translateY(-10%) scale(0.98, 1.03) rotate(-2deg); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes ch-hop {
+  0%, 72%, 100% { transform: none; }
+  80% { transform: translateY(-18%) rotate(-4deg); }
+  88% { transform: translateY(3%) scale(1.04, 0.96); }
+}
+/* then the cat pops in, then the boxes come up */
+.landing-cat.cat-in {
+  /* shrinks on short screens (landscape phones, laptops with toolbars) so YES / NO stay on screen, even
+     after NO grows to show the sticker (review: 1366x620, 844x390) */
+  width: min(100%, 300px, max(120px, calc(100dvh - 350px)));
+  animation: cat-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 1.25s both;
+}
+@keyframes cat-in {
+  from { opacity: 0; transform: scale(0.6) rotate(-14deg); }
+  to { opacity: 1; transform: rotate(-2deg); }
+}
+.intro-choices {
+  width: 100%;
+  margin-top: 4px;
+  align-items: center; /* YES keeps its height when NO grows to show the sticker */
+  animation: rise-in 0.5s ease-out 1.75s both;
+}
+/* hidden (not just transparent) until they come up: invisible buttons must not be clickable / focusable */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(18px); visibility: hidden; }
+  to { opacity: 1; transform: none; visibility: visible; }
+}
+
+/* ======================================================== PAGE 2: DETAILS == */
+.landing-form.wide {
+  width: min(100%, 600px);
+}
+.form-title:focus {
+  outline: none; /* focused only to start the page there (no keyboard popping up on phones) */
+}
+.form-title {
+  margin: 0 0 18px;
+  text-align: center;
+  font: 700 clamp(1.8rem, 6vw, 2.4rem) / 1.1 var(--display);
+  color: var(--text);
+}
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 12px;
+}
+@media (max-width: 480px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}
+.field select {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 12px;
+  font: 500 1rem var(--font);
+  color: var(--text);
+  background: var(--field);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+}
+.field select:focus {
+  outline: none;
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px rgb(31 29 27 / 0.12);
+}
+
+/* page 3: school-test style, each question with its answer under it */
+.quiz {
+  display: grid;
+  gap: 18px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
+  counter-reset: q;
+}
+.q {
+  counter-increment: q;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.q:last-child {
+  border-bottom: 0;
+}
+.q-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-weight: 600;
+  color: var(--text);
+}
+.q-text::before {
+  content: counter(q) ".";
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.q-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.opt {
+  touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  color: var(--text);
+  background: var(--field);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+.opt input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--text);
+}
+.opt:has(input:checked) {
+  border-color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--text);
+}
+.opt:has(input:focus-visible) {
+  outline: 3px solid var(--text);
+  outline-offset: 2px;
+}
+.q-input {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  font: 500 1rem var(--font);
+  color: var(--text);
+  background: var(--field);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+}
+.q-text + .q-input {
+  margin-top: 0;
+}
+.q-input:focus {
+  outline: none;
+  border-color: var(--text);
+  box-shadow: 0 0 0 3px rgb(31 29 27 / 0.12);
+}
+.quiz-tick {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  font: 700 0.72rem/1 var(--font);
+  color: #fff;
+  background: var(--yes);
+  border-radius: 50%;
+  transform: scale(0);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.q.right .quiz-tick {
+  transform: scale(1);
+}
+
+/* ========================================================== PAGE 4: CAPTCHA == */
+/* Looks like an ordinary human check: a plain box with a header, a task and Verify. */
+/* ---------- the screen cracking like glass in the middle of the game (cracks.js) ---------- */
+.cracks {
+  position: fixed;
+  inset: 0;
+  z-index: 70; /* over the game and over the siren page while it fades in */
+  /* catches clicks: nothing in the game is pressed while the glass breaks */
+}
+.cracks-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.crack-line,
+.crack-shade {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+}
+.crack-line {
+  stroke: rgb(255 255 255 / 0.92);
+}
+.crack-shade {
+  stroke: rgb(25 0 8 / 0.5);
+  transform: translate(1.3px, 1.3px);
+}
+.crack-spot {
+  fill: rgb(255 255 255 / 0.6);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.cracks.reduced {
+  background: rgb(255 0 30 / 0.25);
+}
+
+/* ---------- page 4: a security alarm going off ---------- */
+/* Since 2026-11-07 it interrupts the game: an overlay over the (paused) game, which carries on after "Verified". */
+#captcha.page-alert {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow-y: auto;
+}
+/* The user: "like red siren when criminal system detects unusual activities and alert the system".
+   Dark red room, red light pulsing in from the edges, a rotating siren beam, faint monitor scanlines.
+   Slow on purpose: well under 3 flashes a second (seizure safety), and smooth, never a hard blink. */
+.page-alert {
+  --text: #fff;
+  --mark: rgb(255 36 64 / 0.9);
+  isolation: isolate; /* the light layers (z-index -1) sit above this background, below the content */
+  color: var(--text);
+  background:
+    repeating-linear-gradient(0deg, rgb(0 0 0 / 0.16) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at 50% 42%, #40000a 0%, #1e0005 58%, #0e0002 100%);
+}
+body:has(.page-alert:not([hidden])) {
+  background: #0e0002; /* same dark red on overscroll */
+}
+/* red light pulsing in from the edges */
+.page-alert::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 30%, rgb(255 0 34 / 0.6) 100%);
+  animation: alarm-pulse 1.3s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+/* the siren: two beams going round, like a rotating beacon */
+.page-alert::after {
+  content: "";
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 150vmax; /* covers the screen at any angle */
+  height: 150vmax;
+  margin: -75vmax 0 0 -75vmax;
+  z-index: -1;
+  pointer-events: none;
+  background: conic-gradient(
+    transparent 0deg,
+    rgb(255 34 54 / 0.34) 22deg,
+    transparent 46deg,
+    transparent 180deg,
+    rgb(255 34 54 / 0.34) 202deg,
+    transparent 226deg,
+    transparent 360deg
+  );
+  animation: alarm-spin 3s linear infinite;
+  will-change: transform;
+}
+@keyframes alarm-pulse {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
+}
+@keyframes alarm-spin {
+  to { transform: rotate(360deg); }
+}
+.page-alert .human-intro {
+  text-shadow: 0 0 22px rgb(255 30 50 / 0.65), 0 2px 6px rgb(0 0 0 / 0.5);
+}
+.page-alert .hi-no b {
+  color: #fff;
+  text-shadow: 0 0 16px rgb(255 40 60 / 0.95);
+}
+.page-alert .hi-okay {
+  text-shadow: none;
+}
+.page-alert .hi-pic {
+  box-shadow: 0 0 0 2px rgb(255 255 255 / 0.9), 0 0 28px rgb(255 30 50 / 0.55);
+}
+.page-alert .captcha {
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.3), 0 0 40px rgb(255 20 40 / 0.45), 0 12px 30px rgb(0 0 0 / 0.5);
+}
+.page-alert .captcha-heading {
+  text-shadow: 0 0 20px rgb(255 30 50 / 0.6);
+}
+
+/* ---------- the lead-in before the captcha: "Wait Wait Wait…" then "NO NO NO… OKAY" ---------- */
+/* Everything starts invisible; intro.js (playHumanIntro) brings it in and takes it out. */
+.human-intro {
+  display: grid;
+  width: min(100%, 760px);
+  text-align: center;
+  color: var(--text);
+  font-family: var(--display);
+}
+.human-intro:focus {
+  outline: none;
+}
+.hi-scene {
+  grid-area: 1 / 1; /* both scenes in the same place: the second takes over where the first was */
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(14px, 3dvh, 28px);
+}
+.hi-waits,
+.hi-line,
+.hi-whatif,
+.hi-lets,
+.hi-okay {
+  margin: 0;
+}
+.hi-wait,
+.hi-word,
+.hi-whatif,
+.hi-no,
+.hi-lets,
+.hi-okay {
+  opacity: 0;
+  will-change: transform, opacity, filter;
+}
+.hi-waits {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0 0.32em;
+  font-weight: 600;
+  font-size: clamp(2.1rem, 8vw, 4.2rem);
+  line-height: 1.1;
+}
+.hi-wait:nth-child(2) {
+  font-size: 1.12em;
+}
+.hi-wait:nth-child(3) {
+  font-size: 1.26em;
+}
+.hi-line {
+  max-width: 15em;
+  font-weight: 600;
+  font-size: clamp(1.6rem, 5.4vw, 2.8rem);
+  line-height: 1.3;
+}
+.hi-word {
+  display: inline-block;
+}
+/* "not a human?" gets a highlighter stroke that sweeps in under it */
+.hi-mark {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+  padding: 0 0.1em;
+}
+.hi-swipe {
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  bottom: 0.1em;
+  height: 0.45em;
+  background: var(--mark);
+  border-radius: 0.2em;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.hi-whatif {
+  font-weight: 600;
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  line-height: 1.1;
+}
+.hi-nos {
+  display: flex;
+  justify-content: center;
+  gap: clamp(12px, 3.5vw, 32px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hi-no {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+.hi-pic {
+  display: block;
+  width: clamp(72px, min(22vw, 17dvh), 132px);
+  aspect-ratio: 1;
+  padding: 6px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 26px rgb(0 0 0 / 0.13), 0 0 0 1px rgb(0 0 0 / 0.05);
+}
+.hi-pic img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.hi-no b {
+  font: 700 clamp(1.5rem, 5vw, 2.3rem) / 1 var(--display);
+  letter-spacing: 0.03em;
+  color: var(--error);
+}
+.hi-check {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+.hi-lets {
+  font-weight: 600;
+  font-size: clamp(1.5rem, 5vw, 2.4rem);
+  line-height: 1.1;
+}
+/* OKAY lands like a rubber stamp */
+.hi-okay {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 22px 8px 8px;
+  color: var(--yes);
+  background: var(--yes-soft);
+  border: 4px solid var(--yes);
+  border-radius: 18px;
+}
+.hi-okay .hi-pic {
+  width: clamp(56px, min(15vw, 12dvh), 88px);
+  padding: 4px;
+  border-radius: 12px;
+  box-shadow: none;
+}
+.hi-okay b {
+  font: 700 clamp(2rem, 7vw, 3.3rem) / 1 var(--display);
+  letter-spacing: 0.05em;
+}
+
+.captcha-page {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  width: min(100%, 460px);
+}
+/* the user's steeple-fingers picture + "Let's check if U are human or not" (not too big, not too small) */
+.captcha-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: max-content; /* may be wider than the captcha box */
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  text-wrap: balance;
+  font: 700 clamp(1.5rem, 5vw, 2rem) / 1.2 var(--font);
+  color: var(--text);
+  text-align: center;
+}
+.captcha-heading:focus {
+  outline: none;
+}
+.captcha-heading-pic {
+  flex: none;
+  width: clamp(64px, 16vw, 84px);
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 14px;
+  box-shadow: 0 0 0 3px #fff, 0 0 26px rgb(255 30 50 / 0.6);
+}
+.captcha-heading span {
+  text-align: left;
+}
+.captcha {
+  width: 100%;
+  background: #fff;
+  color: #202124;
+  border: 1px solid #d3d3d3;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.12);
+  overflow: hidden;
+}
+.captcha-head {
+  padding: 16px 18px;
+  color: #fff;
+  background: #2f6fde;
+}
+.captcha-task {
+  margin: 0;
+  font: 700 1.2rem/1.25 var(--font);
+}
+.captcha-sub {
+  margin: 2px 0 0;
+  font-size: 0.9rem;
+  opacity: 0.92;
+}
+.captcha-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* left: drag these; right: the same pictures */
+  gap: 10px;
+  padding: 16px 14px;
+}
+.captcha-stickers,
+.captcha-slots {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.captcha-stickers li,
+.captcha-slots li {
+  width: 84px;
+  height: 84px;
+}
+.captcha-sticker,
+.captcha-slot {
+  position: relative;
+  display: block;
+  width: 84px;
+  height: 84px;
+  padding: 4px;
+  font: inherit;
+  background: #fff;
+  border: 1px solid #d3d3d3;
+  border-radius: 6px;
+}
+.captcha-sticker {
+  cursor: grab;
+  touch-action: none; /* a finger drags the picture instead of scrolling the page */
+}
+.captcha-slot {
+  cursor: pointer;
+  touch-action: manipulation; /* no double-tap-zoom wait: a tap places the picture at once */
+}
+.captcha-sticker img,
+.captcha-slot > img,
+.captcha-placed img,
+.captcha-ghost {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.captcha-sticker.selected {
+  outline: 3px solid #2f6fde;
+  outline-offset: 1px;
+}
+.captcha-sticker.lifting {
+  opacity: 0.35;
+}
+/* moved to the right: its place on the left stays as an empty outline */
+.captcha-stickers li.used {
+  border: 2px dashed #c4c7ca;
+  border-radius: 6px;
+}
+.captcha-stickers li.used .captcha-sticker {
+  visibility: hidden;
+}
+.captcha-sticker:focus-visible,
+.captcha-slot:focus-visible,
+.captcha-icon:focus-visible,
+.captcha-verify:focus-visible {
+  outline: 3px solid #2f6fde;
+  outline-offset: 2px;
+}
+.captcha-slot.over {
+  border-color: #2f6fde;
+  box-shadow: 0 0 0 3px #2f6fde;
+}
+.captcha-slot.filled {
+  border-color: #2f6fde;
+}
+/* a picture dropped on this one: sits on its lower-right corner */
+.captcha-placed {
+  position: absolute;
+  right: -12px;
+  bottom: -10px;
+  width: 58px;
+  height: 58px;
+  padding: 3px;
+  background: #fff;
+  border: 2px solid #2f6fde;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.2);
+}
+.captcha-ghost {
+  position: fixed;
+  z-index: 100;
+  width: 72px;
+  height: 72px;
+  padding: 3px;
+  background: #fff;
+  border: 1px solid #b0b4b8;
+  border-radius: 4px;
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.25);
+  transform: translate(-50%, -50%) rotate(-4deg);
+  pointer-events: none;
+}
+.captcha-foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-top: 1px solid #e3e3e3;
+}
+.captcha-icon {
+  width: 36px;
+  height: 36px;
+  font-size: 1.3rem;
+  color: #5f6368;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.captcha-icon:hover {
+  background: #f1f3f4;
+}
+.captcha-status {
+  flex: 1;
+  margin: 0;
+  font-size: 0.88rem;
+  color: #5f6368;
+}
+.captcha-status.warn {
+  color: #c5221f;
+}
+.captcha-status.ok {
+  color: #188038;
+  font-weight: 700;
+}
+.captcha-verify {
+  touch-action: manipulation;
+  min-width: 96px;
+  min-height: 40px;
+  padding: 8px 18px;
+  font: 700 0.9rem/1 var(--font);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #2f6fde;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.captcha-verify:disabled {
+  background: #188038;
+  cursor: default;
+}
+/* short screens (1366x768 laptops): everything fits without scrolling */
+@media (max-height: 820px) {
+  .page-alert {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+  .page-alert .captcha-page {
+    gap: 12px;
+  }
+  .captcha-heading-pic {
+    width: 60px;
+  }
+  .captcha-body {
+    padding: 12px 14px;
+  }
+  .captcha-stickers li,
+  .captcha-slots li,
+  .captcha-sticker,
+  .captcha-slot {
+    width: 72px;
+    height: 72px;
+  }
+  .captcha-placed {
+    width: 50px;
+    height: 50px;
+  }
+}
+@media (max-width: 380px) {
+  .captcha-stickers li,
+  .captcha-slots li,
+  .captcha-sticker,
+  .captcha-slot {
+    width: 72px;
+    height: 72px;
+  }
+  .captcha-placed {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+.continue-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 54px;
+  margin-top: 20px;
+  padding: 12px 20px;
+  font: 600 1.15rem/1 var(--display);
+  color: var(--bg);
+  background: var(--text);
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+}
+.continue-btn:hover {
+  box-shadow: 0 10px 24px rgb(31 29 27 / 0.22);
+}
+.continue-btn:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
+}
+.continue-btn .arrow {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+.continue-btn:hover .arrow {
+  transform: translateX(4px);
+}
+
+/* ============================================================= MEME CAM == */
+/* Pink pixel world (the user asked 2026-11-07, with a screenshot of the blush pink they want):
+   blush #fadbe5 sky, raspberry #e8336f accents, blocky pixel-art pieces in img/pixel/. */
+.app {
+  --cam-bg: #fadbe5;
+  --cam-text: #a14b70;
+  --px-ink: #5b1f3a; /* text on pink */
+  --px-pink: #e8336f;
+  --px-line: #f59bbb;
+  --px-shadow: rgb(194 36 90 / 0.28);
+  --ar: 16 / 9; /* the camera's aspect ratio; main.js sets the real one */
+  /* sticker panel to the right of the camera (below it on narrow screens) */
+  --panel-w: clamp(170px, 17vw, 230px);
+  --panel-gap: 18px;
+  /* camera width: as big as fits next to the panel, up to 1100px */
+  --stage-w: min(calc(100vw - 32px - var(--panel-w) - var(--panel-gap)), 1100px, calc((100dvh - 96px) * var(--ar)));
+  --stage-h: calc(var(--stage-w) / (var(--ar)));
+
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 24px 16px;
+  background: linear-gradient(180deg, #fde6ee 0%, #fadbe5 45%, #f6cfe0 100%);
+  color: var(--cam-text);
+  color-scheme: light;
+  position: relative;
+  isolation: isolate; /* the pixel world (z-index -1) sits above this background, below the game */
+}
+body:has(.app:not([hidden])) {
+  background: #f6cfe0; /* same pink on overscroll */
+}
+
+/* ---------- the pink pixel world: clouds, floating blocks, hearts, sparkles, blocky ground ---------- */
+.pixel-world {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.pixel-world img {
+  position: absolute;
+  display: block;
+  image-rendering: pixelated;
+  user-select: none;
+}
+.px-cloud {
+  width: 180px;
+  height: auto;
+  left: 0;
+  opacity: 0.95;
+  animation: px-drift 90s linear infinite;
+}
+.px-cloud.c1 { top: 4%; animation-delay: -20s; }
+.px-cloud.c2 { top: 16%; width: 120px; opacity: 0.8; animation-duration: 120s; animation-delay: -75s; }
+.px-cloud.c3 { top: 30%; width: 220px; opacity: 0.7; animation-duration: 150s; animation-delay: -40s; }
+@keyframes px-drift {
+  from { transform: translateX(-260px); }
+  to { transform: translateX(calc(100vw + 40px)); }
+}
+.px-block {
+  width: 72px;
+  height: auto;
+  animation: px-bob 5s ease-in-out infinite;
+}
+.px-block.b1 { left: 3%; top: 22%; }
+.px-block.b2 { right: 3%; top: 58%; width: 56px; animation-delay: -1.8s; animation-duration: 6s; }
+.px-block.b3 { left: 6%; bottom: 96px; width: 48px; animation-delay: -3.2s; animation-duration: 4.5s; }
+@keyframes px-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(3deg); }
+}
+.px-heart {
+  width: 36px;
+  height: auto;
+  bottom: 40px;
+  opacity: 0;
+  animation: px-float 12s linear infinite;
+}
+.px-heart.h1 { left: 12%; }
+.px-heart.h2 { left: 38%; width: 27px; animation-delay: -4s; animation-duration: 14s; }
+.px-heart.h3 { right: 22%; animation-delay: -7.5s; }
+.px-heart.h4 { right: 8%; width: 27px; animation-delay: -10s; animation-duration: 16s; }
+@keyframes px-float {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 0.9; }
+  80% { opacity: 0.9; }
+  100% { transform: translateY(-70vh); opacity: 0; }
+}
+.px-spark {
+  width: 21px;
+  height: auto;
+  animation: px-twinkle 2.6s steps(2, jump-none) infinite;
+}
+.px-spark.s1 { left: 20%; top: 10%; }
+.px-spark.s2 { right: 16%; top: 7%; animation-delay: -0.9s; }
+.px-spark.s3 { left: 9%; top: 52%; animation-delay: -1.7s; }
+.px-spark.s4 { right: 10%; top: 38%; animation-delay: -0.4s; }
+@keyframes px-twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.67); }
+  50% { opacity: 1; transform: scale(1); }
+}
+.px-ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72px;
+  background: url("../img/pixel/ground.svg") left top / 96px 72px repeat-x;
+  image-rendering: pixelated;
+}
+@media (max-width: 820px) {
+  .px-ground { height: 48px; background-size: 64px 48px; }
+  .px-block { width: 48px; }
+  .px-block.b2, .px-block.b3 { width: 36px; }
+  .px-cloud { width: 120px; }
+  .px-cloud.c3 { width: 150px; }
+}
+
+.play {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--panel-gap);
+}
+.scene {
+  position: relative;
+  width: var(--stage-w);
+}
+
+/* ---------- loading screen between the captcha and the game (boot.js) ---------- */
+.boot {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px 96px;
+  background: linear-gradient(180deg, #fde6ee 0%, #fadbe5 45%, #f6cfe0 100%);
+  color: var(--px-ink);
+}
+.boot.leaving {
+  animation: boot-out 0.55s cubic-bezier(0.55, 0, 0.75, 0.25) forwards;
+}
+.boot.leaving .boot-card {
+  animation: boot-card-out 0.55s cubic-bezier(0.55, 0, 0.75, 0.25) forwards;
+}
+@keyframes boot-out {
+  to { opacity: 0; }
+}
+@keyframes boot-card-out {
+  to { transform: translateY(-24px) scale(0.96); }
+}
+.boot-card {
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  text-align: center;
+}
+/* a pixel block hopping, squashing when it lands */
+.boot-hop {
+  display: grid;
+  justify-items: center;
+  align-content: end;
+  height: 150px;
+}
+.boot-hop img {
+  display: block;
+  width: 88px;
+  height: auto;
+  image-rendering: pixelated;
+  transform-origin: 50% 100%;
+  animation: boot-hop 0.9s cubic-bezier(0.33, 0, 0.67, 1) infinite;
+}
+.boot-shadow {
+  width: 70px;
+  height: 10px;
+  margin-top: 4px;
+  background: rgb(194 36 90 / 0.25);
+  animation: boot-shadow 0.9s cubic-bezier(0.33, 0, 0.67, 1) infinite;
+}
+@keyframes boot-hop {
+  0%, 100% { transform: translateY(0) scale(1.12, 0.88); }
+  15% { transform: translateY(0) scale(0.94, 1.06); }
+  50% { transform: translateY(-48px) scale(1, 1); }
+  85% { transform: translateY(0) scale(0.97, 1.03); }
+}
+@keyframes boot-shadow {
+  0%, 100% { transform: scaleX(1); opacity: 0.9; }
+  50% { transform: scaleX(0.55); opacity: 0.4; }
+}
+.boot-title {
+  margin: 0;
+  font: 600 clamp(1.8rem, 6vw, 2.4rem) / 1 var(--display);
+}
+.boot-dots i {
+  font-style: normal;
+  animation: boot-dot 1.2s steps(1, end) infinite;
+}
+.boot-dots i:nth-child(2) { animation-delay: 0.2s; }
+.boot-dots i:nth-child(3) { animation-delay: 0.4s; }
+@keyframes boot-dot {
+  0%, 60% { opacity: 1; }
+  80% { opacity: 0; }
+}
+/* chunky pixel progress bar: 12 blocks */
+.boot-bar {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 4px;
+  width: min(360px, 78vw);
+  padding: 6px;
+  background: #fff;
+  border: 4px solid var(--px-ink);
+  box-shadow: 6px 6px 0 var(--px-shadow);
+}
+.boot-bar span {
+  height: 22px;
+  background: #f8d9e4;
+  transition: background-color 0.2s;
+}
+.boot-bar span.on {
+  background: var(--px-pink);
+  box-shadow: inset 0 4px 0 #ff7aa5, inset 0 -4px 0 #b81f55;
+  animation: cell-pop 0.25s ease-out;
+}
+@keyframes cell-pop {
+  from { transform: scaleY(0.6); }
+  to { transform: none; }
+}
+.boot-step {
+  min-height: 1.5em;
+  margin: 0;
+  font-weight: 600;
+  color: var(--cam-text);
+}
+
+/* ---------- sticker panel: every level's sticker, locked until found ---------- */
+.stickers {
+  width: var(--panel-w);
+  height: var(--stage-h);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 10px 10px;
+  background: rgb(255 255 255 / 0.82);
+  border: 3px solid var(--px-line);
+  border-radius: 8px;
+  box-shadow: 6px 6px 0 var(--px-shadow); /* hard, blocky shadow */
+}
+.stickers-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 4px 10px;
+  font: 600 1rem/1.2 var(--display);
+  color: var(--px-ink);
+}
+#stickers-count {
+  font: 600 0.8rem/1 var(--font);
+  color: var(--cam-text);
+  font-variant-numeric: tabular-nums;
+}
+.sticker-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-content: start;
+  gap: 10px;
+  margin: 0;
+  padding: 2px;
+  list-style: none;
+  scrollbar-width: thin;
+}
+.sticker-card {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+}
+.sticker-thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 0 0 2px #f6c6d8;
+}
+.sticker-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: filter 0.4s ease;
+}
+.sticker-level {
+  font: 600 0.74rem/1 var(--font);
+  color: var(--cam-text);
+}
+/* locked: blurred, dark, with a lock on top */
+.sticker-card.locked .sticker-thumb img {
+  filter: blur(7px) grayscale(1) brightness(0.55);
+}
+.sticker-card.locked .sticker-thumb::after {
+  content: "🔒";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+}
+/* the level being played now */
+.sticker-card.current .sticker-thumb {
+  box-shadow: 0 0 0 3px var(--px-pink);
+}
+.sticker-card.current .sticker-level {
+  color: var(--px-pink);
+}
+/* unlocked: a tick in the corner, and a pop the moment it unlocks */
+.sticker-card.unlocked .sticker-thumb {
+  box-shadow: 0 0 0 2px #34c759;
+}
+.sticker-card.unlocked .sticker-thumb::after {
+  content: "✓";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  font: 700 0.72rem/1 var(--font);
+  color: #fff;
+  background: #34c759;
+  border-radius: 50%;
+}
+.sticker-card.unlocked .sticker-level {
+  color: #34c759;
+}
+.sticker-card.just .sticker-thumb {
+  animation: unlock-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes unlock-pop {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* narrow screens: the panel goes under the camera as a sideways strip */
+/* narrow PORTRAIT screens: the panel goes under the camera. Landscape phones keep the panel (and the meme) on
+   the right: under the camera there is no room on a 375 px-high screen (review 2026-11-07). */
+@media (max-width: 820px) and (orientation: portrait) {
+  .app {
+    --panel-w: 0px;
+    --panel-gap: 0px;
+    /* the camera leaves room for the sticker strip under it (~153 px + 14 px gap): no page scroll */
+    --stage-w: min(calc(100vw - 32px), 1100px, calc((100dvh - 96px - 170px) * var(--ar)));
+  }
+  .play {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .stickers {
+    width: var(--stage-w);
+    height: auto;
+  }
+  .sticker-list {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 72px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+  }
+}
+
+/* ---------- camera ---------- */
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--ar);
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 0 4px #fff, 8px 8px 0 4px var(--px-shadow);
+}
+/* Always a mirrored selfie view (like cv2.flip(img, 1)). Only the DISPLAY is
+   flipped: detection runs on the raw frames and is left/right-agnostic. */
+.stage video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scaleX(-1);
+}
+/* Hand landmarks, drawn on top of the video in the same (mirrored) box. */
+.stage .hands {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(-1);
+  pointer-events: none;
+}
+
+.gate {
+  position: absolute;
+  inset: 0;
+  z-index: 4; /* above the win card and the game's corner card */
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: #141416;
+}
+.gate-card {
+  max-width: 440px;
+  text-align: center;
+  color: #d6d6db;
+}
+.gate-card p {
+  margin: 0 0 14px;
+}
+.gate.error .gate-card p {
+  color: #ffb4b4;
+}
+
+/* ---------- meme: appears only while something is detected ---------- */
+/* NEVER over the camera (the user: on the left and that big "it covers my half face", 2026-11-07).
+   Desktop: to the RIGHT of the camera, over the top of the sticker panel, the panel's width.
+   Narrow screens (panel under the camera): under the camera, at its right end, over the sticker strip. */
+.meme {
+  position: absolute;
+  top: 0;
+  left: calc(100% + var(--panel-gap));
+  width: var(--panel-w);
+  aspect-ratio: 1;
+  margin: 0;
+  padding: 6px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 0 3px var(--px-line), 6px 6px 0 3px var(--px-shadow);
+  z-index: 5;
+  transform-origin: left center;
+  /* Short pop-in: the meme is readable within ~0.1 s of being triggered. */
+  animation: meme-in 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (max-width: 820px) and (orientation: portrait) {
+  .meme {
+    top: calc(100% + 14px);
+    left: auto;
+    right: 0;
+    width: clamp(96px, 30vw, 150px);
+    transform-origin: right top;
+  }
+}
+/* One meme replacing another: no fade from transparent (that read as a blink), just a small bump. */
+.meme.swap {
+  animation: meme-swap 0.14s ease-out both;
+}
+.meme.out {
+  animation: meme-out 0.2s ease-in both;
+}
+.meme img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 9px;
+}
+@keyframes meme-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes meme-swap {
+  from { transform: scale(0.97); }
+  to { transform: scale(1); }
+}
+@keyframes meme-out {
+  to { opacity: 0; transform: scale(0.96); }
+}
+
+/* ---------- game: the meme to find, in the camera's top-right corner ---------- */
+.target {
+  --target-w: clamp(100px, calc(var(--stage-w) * 0.18), 156px);
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: var(--target-w);
+  padding: 5px 5px 7px;
+  background: #fff;
+  color: #1d1d1f;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.45);
+  z-index: 3;
+  transition: box-shadow 0.2s;
+}
+.target img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  /* small phones: the card (with its hint) stays inside the camera box, clear of the meme under it */
+  max-height: max(44px, calc(var(--stage-h) - 116px));
+  object-fit: contain;
+  border-radius: 8px;
+}
+.target-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+  margin: 5px 3px 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+/* "Found! ✓" takes the whole row (it doesn't fit beside "13 / 13" on a phone-sized card) */
+.target.found #target-stage {
+  display: none;
+}
+.target.found .target-row {
+  justify-content: center;
+}
+#target-stage {
+  color: #6e6e73;
+  font-weight: 500;
+}
+.target-bar {
+  position: relative;
+  height: 5px;
+  margin: 0 3px;
+  border-radius: 3px;
+  background: #e5e5ea;
+  overflow: hidden;
+}
+.target-bar span {
+  position: absolute;
+  inset: 0;
+  background: #8e8e93;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.1s linear;
+}
+/* the 60% pass mark */
+.target-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 60%;
+  width: 2px;
+  background: rgb(29 29 31 / 0.35);
+}
+.target.ok .target-bar span {
+  background: #34c759;
+}
+.target.found {
+  box-shadow: 0 0 0 3px #34c759, 0 12px 30px rgb(0 0 0 / 0.45);
+}
+.target.found #target-pct {
+  color: #1f9d47;
+}
+.target-hint {
+  margin: 6px 3px 0;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  color: #3a3a3c;
+}
+
+/* ---------- all levels found: two cute boxes, and the comment paper (feedback.js) ---------- */
+.win {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: rgb(250 219 229 / 0.86);
+  -webkit-backdrop-filter: blur(6px); /* Safari before 18 */
+  backdrop-filter: blur(6px);
+  overflow-y: auto;
+}
+.win-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(16px, 4vw, 34px);
+}
+.win.writing .win-boxes {
+  display: none; /* the paper takes the stage */
+}
+.cute-box {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 10px;
+  width: clamp(138px, 38vw, 190px);
+  aspect-ratio: 1;
+  padding: 12px;
+  font: 600 clamp(1.15rem, 4vw, 1.45rem) / 1.1 var(--display);
+  color: var(--px-ink);
+  background: #fff;
+  border: 4px solid var(--px-line);
+  border-radius: 24px;
+  box-shadow: 0 8px 0 var(--px-shadow);
+  cursor: pointer;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.18s;
+  animation: box-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.box-again {
+  background: linear-gradient(160deg, #fff 0%, #ffe3ee 100%);
+}
+.box-comment {
+  background: linear-gradient(160deg, #fff 0%, #ffeedd 100%);
+  border-color: #f7b38c;
+  animation-delay: 0.12s;
+}
+.cute-box:hover {
+  transform: translateY(-5px) rotate(-2deg);
+  box-shadow: 0 13px 0 var(--px-shadow);
+}
+.box-comment:hover {
+  transform: translateY(-5px) rotate(2deg);
+}
+.cute-box:active {
+  transform: translateY(4px);
+  box-shadow: 0 3px 0 var(--px-shadow);
+}
+.cute-box:focus-visible {
+  outline: 3px solid var(--px-pink);
+  outline-offset: 4px;
+}
+.cute-icon {
+  font-size: clamp(2.6rem, 9vw, 3.4rem);
+  line-height: 1;
+  animation: icon-wiggle 2.6s ease-in-out infinite;
+}
+.box-comment .cute-icon {
+  animation-delay: -1.3s;
+}
+@keyframes box-pop {
+  from { opacity: 0; transform: scale(0.6) translateY(30px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes icon-wiggle {
+  0%, 70%, 100% { transform: none; }
+  78% { transform: rotate(-10deg) scale(1.08); }
+  86% { transform: rotate(8deg) scale(1.08); }
+  94% { transform: rotate(-4deg); }
+}
+
+/* the comment paper: lined note paper with a red margin and a strip of tape on top */
+.note {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  width: min(440px, 100%);
+  padding: 30px 24px 22px 50px;
+  color: #3b2a31;
+  background:
+    linear-gradient(90deg, transparent 34px, #f3a1bd 34px 36px, transparent 36px),
+    #fffdf7;
+  border-radius: 6px;
+  box-shadow: 0 2px 0 #efe4d6, 0 22px 44px rgb(91 31 58 / 0.25);
+  transform: rotate(-1.2deg);
+  animation: paper-in 0.6s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+.note::before {
+  content: "";
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  width: 116px;
+  height: 28px;
+  margin-left: -58px;
+  background: rgb(232 51 111 / 0.32);
+  transform: rotate(3deg);
+}
+@keyframes paper-in {
+  from { opacity: 0; transform: translateY(-60px) rotate(-8deg) scale(0.9); }
+  to { opacity: 1; transform: rotate(-1.2deg); }
+}
+.note-close {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #8a6b78;
+  background: none;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.note-close:hover {
+  background: #fbe6ee;
+}
+.note-title {
+  margin: 0;
+  font: 600 1.5rem / 1.1 var(--display);
+  color: var(--px-ink);
+}
+.note-title:focus {
+  outline: none;
+}
+.note-stars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.note-stars legend {
+  float: left; /* on one line with the stars */
+  margin-right: 10px;
+  white-space: nowrap;
+  font: 600 1rem / 1 var(--display);
+  color: var(--px-ink);
+}
+.note-stars label {
+  position: relative;
+  font-size: 1.9rem;
+  line-height: 1;
+  color: #f1d3de;
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.15s;
+}
+.note-stars label:hover {
+  transform: scale(1.18);
+}
+.note-stars label.on {
+  color: var(--px-pink);
+}
+.note-stars input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+/* keyboard focus on a star (the + rule also works in browsers without :has) */
+.note-stars input:focus-visible + span {
+  outline: 2px solid var(--px-pink);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* writing on the lines */
+.note-text {
+  width: 100%;
+  min-height: 128px;
+  padding: 0 4px;
+  font: 500 1.15rem / 32px var(--display);
+  color: #3b2a31;
+  background: repeating-linear-gradient(transparent 0 31px, #cddcf1 31px 32px);
+  background-attachment: local;
+  border: 0;
+  resize: vertical;
+}
+.note-text:focus {
+  outline: 2px dashed #f3a1bd;
+  outline-offset: 4px;
+}
+.note-status {
+  min-height: 1.3em;
+  margin: 0;
+  font-size: 0.92rem;
+  color: #8a6b78;
+}
+.note-status.warn {
+  color: var(--error);
+}
+.note-status.ok {
+  color: var(--yes);
+  font-weight: 700;
+}
+.note-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.note-send,
+.note-suggest {
+  flex: 1 1 auto;
+  min-height: 46px;
+  padding: 10px 16px;
+  font: 600 1.05rem / 1 var(--display);
+  border-radius: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.note-send {
+  color: #fff;
+  background: var(--px-pink);
+  border: 0;
+  box-shadow: 0 5px 0 #b81f55;
+}
+.note-suggest {
+  color: var(--px-pink);
+  background: #fff;
+  border: 3px solid var(--px-pink);
+  box-shadow: 0 5px 0 var(--px-shadow);
+}
+.note-send:hover,
+.note-suggest:hover {
+  transform: translateY(-2px);
+}
+.note-send:active,
+.note-suggest:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #b81f55;
+}
+.note-send:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.note-send:focus-visible,
+.note-suggest:focus-visible,
+.note-close:focus-visible {
+  outline: 3px solid var(--px-ink);
+  outline-offset: 2px;
+}
+
+.loading {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* ---------- controls (only shown when needed) ---------- */
+.btn,
+.select {
+  font: inherit;
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.select {
+  max-width: min(100%, 360px);
+  color: var(--px-ink);
+  background: #fff;
+  border: 2px solid var(--px-line);
+}
+.btn.primary {
+  border: 0;
+  color: #1b1b1d;
+  background: #f5f5f7;
+  font-weight: 600;
+  padding: 11px 22px;
+}
+.btn.primary:hover:not(:disabled) {
+  background: #fff;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn:focus-visible {
+  outline: 2px solid #f5f5f7;
+  outline-offset: 2px;
+}
+.select:focus-visible {
+  outline: 2px solid var(--px-pink);
+  outline-offset: 2px;
+}
+
+.noscript {
+  text-align: center;
+  color: var(--error);
+}
+
+/* small phones */
+@media (max-width: 420px) {
+  .gate {
+    padding: 8px;
+  }
+  .gate-card p {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+  .btn.primary {
+    padding: 8px 14px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sticker {
+    animation: none;
+  }
+  .cute-box,
+  .cute-icon,
+  .note {
+    animation: none;
+  }
+  .choice-no.gone,
+  .choice-yes.boing,
+  .no-tease.pop {
+    animation: none;
+  }
+  .boot-hop img,
+  .boot-shadow,
+  .boot-dots i,
+  .boot-bar span.on {
+    animation: none;
+  }
+  /* the alarm on page 4: a steady red glow, no pulsing or turning */
+  .page-alert::before,
+  .page-alert::after {
+    animation: none;
+  }
+  /* the pixel world holds still (each piece frozen at a different point of its loop) */
+  .pixel-world img {
+    animation-play-state: paused;
+  }
+  .no-msg,
+  .choice-play .arrow {
+    transition: none;
+  }
+  .no-msg.pop {
+    animation: none;
+  }
+  .sticker-card.just .sticker-thumb {
+    animation: none;
+  }
+  .landing-title .ch,
+  .landing-cat.cat-in,
+  .intro-choices {
+    animation: none;
+  }
+  .quiz-tick {
+    transition: none;
+  }
+  .meme,
+  .meme.swap,
+  .meme.out {
+    animation: none;
+  }
+  .choice-no.fleeing {
+    transition: none;
+  }
+  .choice-no.fleeing.waddle,
+  .choice-no.fleeing.poof {
+    animation: none;
+  }
+}
